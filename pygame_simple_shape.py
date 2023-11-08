@@ -15,7 +15,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 PINK = (255, 182, 193)
 
 # Define circle parameters
-circle_radius = 50
+circle_radius = 100
 circle_x = screen_width // 2
 circle_y = screen_height // 2
 
