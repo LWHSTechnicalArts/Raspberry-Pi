@@ -15,7 +15,7 @@ for x in range(16):                      #loop to set all pixels
         uh.set_pixel(x, y, 0, 255, 255)
 uh.show()
 
-time.sleep(3)
+time.sleep(10)
 
 uh.clear()           #clear all pixels
 uh.show()
