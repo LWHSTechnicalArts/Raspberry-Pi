@@ -14,6 +14,6 @@ while True:
     temperature = round(sensor.temperature,2)
     relative_humidity = round(sensor.relative_humidity,2)
     
-    print("\nTemperature: %0.1f C" % temperature)
-    print("Humidity: %0.1f %%" % relative_humidity)
+    print("\nTemperature: %0.2f C" % temperature)
+    print("Humidity: %0.2f %%" % relative_humidity)
     time.sleep(5)
