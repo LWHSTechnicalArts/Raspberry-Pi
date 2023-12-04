@@ -1,4 +1,4 @@
-mport requests
+import requests
 import json
 
 OPENAI_API_KEY = 'YOUR_API_KEY'  # Replace with your actual API key
