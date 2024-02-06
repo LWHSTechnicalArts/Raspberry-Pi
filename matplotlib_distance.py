@@ -32,7 +32,7 @@ print("--------------------")
 
 vl53.start_ranging()
 
-# Initialize an empty NumPy array to store temperature values
+# Initialize an empty NumPy array to store distance values
 distance_array = np.array([])
 
 # Initialize time array for x-axis of the plot
@@ -58,7 +58,7 @@ while True:
         time_array = np.append(time_array, time_counter)
 
  
-    # Plot the temperature values over time
+    # Plot the distance values over time
     ax.plot(time_array, distance_array, label='Distance (cm)')
 
     # Add labels and title to the plot
