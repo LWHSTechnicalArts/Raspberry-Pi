@@ -1,7 +1,7 @@
 import cv2
 
 # Load the Haar Cascade file for face detection
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/pi/Documents/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
 
 # Initialize the camera (use 0 for the default camera)
 camera = cv2.VideoCapture(0)
