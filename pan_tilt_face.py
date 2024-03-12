@@ -13,7 +13,7 @@ import cv2
 
 kit = ServoKit(channels=16)
 
-face_cascade= cv2.CascadeClassifier('Cascades/haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier('/home/pi/Documents/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
 
 Px,Ix,Dx=-1/160,0,0
 Py,Iy,Dy=-0.2/120,0,0
