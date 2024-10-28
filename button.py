@@ -1,16 +1,19 @@
-import RPi.GPIO as GPIO
+from gpiozero import Button
+from signal import pause
 import time
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# Define button on GPIO pin 19
+button = Button(19)
+
 print('start')
 
-try:
-    while True:
-        input_state = GPIO.input(19)
-        if input_state == False:
-            print('Button Pressed')
-            time.sleep(0.2)
+# Function to call when button is pressed
+def on_button_press():
+    print('Button Pressed')
+    time.sleep(0.2)  # debounce delay
 
-except KeyboardInterrupt:  #end program if control+c pressed
-    GPIO.cleanup()   #reset all the pins you've used
+# Attach the function to the button press event
+button.when_pressed = on_button_press
+
+# Keep the program running to listen for button presses
+pause()
