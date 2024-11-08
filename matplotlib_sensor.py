@@ -2,19 +2,19 @@
 # SPDX-License-Identifier: MIT
 
 """
-Basic `AHTx0` example test with Matplotlib
+Basic `SHT45` example test with Matplotlib
 """
 
 import time
 import board
-import adafruit_ahtx0
+import adafruit_sht4x
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Create sensor object, communicating over the board's default I2C bus
 i2c = board.I2C()  # uses board.SCL and board.SDA
-# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
-sensor = adafruit_ahtx0.AHTx0(i2c)
+sensor = adafruit_sht4x.SHT4x(i2c)
+sensor.mode = adafruit_sht4x.Mode.NOHEAT_HIGHPRECISION  # Set the SHT45 mode
 
 # Initialize an empty NumPy array to store temperature values
 temperature_array = np.array([])
@@ -29,8 +29,8 @@ fig, ax = plt.subplots()
 time_counter = 0
 
 while True:
-    temperature = round(sensor.temperature, 2)
-    humidity = sensor.relative_humidity
+    temperature, humidity = sensor.measurements  # Read temperature and humidity from SHT45
+    temperature = round(temperature, 2)
 
     # Append the current temperature to the NumPy array
     temperature_array = np.append(temperature_array, temperature)
