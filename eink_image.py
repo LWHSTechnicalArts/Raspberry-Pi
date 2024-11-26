@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 import sys
-sys.path.append("/home/pi/Documents/e-Paper/RaspberryPi_JetsonNano/python/lib")
+sys.path.append("/home/lick/Documents/e-Paper/RaspberryPi_JetsonNano/python/lib")
 import os
-picdir = "/home/pi/Documents/e-Paper/RaspberryPi_JetsonNano/python/pic"
-libdir = "/home/pi/Documents/e-Paper/RaspberryPi_JetsonNano/python/lib"
+picdir = "/home/lick/Documents/e-Paper/RaspberryPi_JetsonNano/python/pic"
+libdir = "/home/lick/Documents/e-Paper/RaspberryPi_JetsonNano/python/lib"
 import logging
 from waveshare_epd import epd3in7
 import time
