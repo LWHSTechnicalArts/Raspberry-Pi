@@ -1,40 +1,48 @@
 import cv2
+from picamera2 import Picamera2
+import numpy as np
 
-# Load the Haar Cascade file for face detection
-face_cascade = cv2.CascadeClassifier('/home/pi/Documents/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
+# Initialize the camera
+picam2 = Picamera2()
+camera_config = picam2.create_preview_configuration(main={"size": (640, 480)})
+picam2.configure(camera_config)
+picam2.start()
 
-# Initialize the camera (use 0 for the default camera)
-camera = cv2.VideoCapture(0)
+# Load Haar cascade using the full path
+cascade_path = "/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml"
+face_cascade = cv2.CascadeClassifier(cascade_path)
 
-# Check if the camera opened successfully
-if not camera.isOpened():
-    print("Error opening video stream or file")
-    exit()
+# OpenCV window setup
+cv2.namedWindow("Face Detection", cv2.WINDOW_AUTOSIZE)
 
-# Read and display frames from the camera in a loop
-while True:
-    # Capture frame-by-frame
-    ret, frame = camera.read()
-    if not ret:
-        break
+print("Starting face detection. Press 'q' to exit.")
+try:
+    while True:
+        # Capture frame from the Pi Camera
+        frame = picam2.capture_array()
+        
+        # Convert BGR to RGB for correct color display
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Convert to grayscale for face detection
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+        # Detect faces
+        faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+        
+        # Draw rectangles around detected faces on the RGB frame
+        for (x, y, w, h) in faces:
+            cv2.rectangle(rgb_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        
+        # Display the result
+        cv2.imshow("Face Detection", rgb_frame)
+        
+        # Exit on 'q' key press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-    # Convert the frame to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # Detect faces in the frame
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-
-    # Draw rectangles around the faces
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-
-    # Display the resulting frame
-    cv2.imshow('Face Detection', frame)
-
-    # Break the loop when 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# When everything is done, release the capture
-camera.release()
-cv2.destroyAllWindows()
+finally:
+    # Cleanup
+    picam2.stop()
+    cv2.destroyAllWindows()
+    print("Face detection stopped.")
