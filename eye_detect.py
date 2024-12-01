@@ -2,7 +2,7 @@ import cv2
 from picamera2 import Picamera2
 
 # Load the Haar Cascade for eye detection
-cascade_path = "/usr/share/opencv4/haarcascades/haarcascade_eye.xml"
+cascade_path = "/home/lick/opencv_haarcascades/haarcascade_eye.xml"
 eye_cascade = cv2.CascadeClassifier(cascade_path)
 
 # Initialize the Pi Camera
