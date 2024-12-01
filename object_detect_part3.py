@@ -1,95 +1,84 @@
-# import the necessary packages
-from __future__ import print_function
-from imutils.video import VideoStream
-import argparse
-import imutils
-import time
-import cv2
 import os
-import RPi.GPIO as GPIO
+os.environ["OPENCV_IO_ENABLE_JASPER"] = "1"  # Suppress libpng ICC profile warnings
+from gpiozero import LED
+from picamera2 import Picamera2
+import cv2
+import numpy as np
+import time
 
-# initialize LED GPIO
-redLed = 21
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(redLed, GPIO.OUT)
-
-# initialize the video stream and allow the camera sensor to warmup
-print("[INFO] waiting for camera to warmup...")
-vs = VideoStream(0).start()
-time.sleep(2.0)
-
-# define the lower and upper boundaries of the object
-# to be tracked in the HSV color space
-colorLower = (167, 100, 100)
-colorUpper = (187, 255, 255)
+# Initialize the LED
+red_led = LED(21)
 
 # Start with LED off
-GPIO.output(redLed, GPIO.LOW)
-ledOn = False
+red_led.off()
+led_on = False
 
-# loop over the frames from the video stream
-while True:
-	# grab the next frame from the video stream, Invert 180o, resize the
-	# frame, and convert it to the HSV color space
-	frame = vs.read()
-	frame = imutils.resize(frame, width=500)
-	frame = imutils.rotate(frame, angle=180)
-	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# Initialize the camera
+print("[INFO] Waiting for camera to warm up...")
+picam2 = Picamera2()
+camera_config = picam2.create_preview_configuration(main={"size": (640, 480)})
+picam2.configure(camera_config)
+picam2.start()
+time.sleep(2.0)
 
-	# construct a mask for the object color, then perform
-	# a series of dilations and erosions to remove any small
-	# blobs left in the mask
-	mask = cv2.inRange(hsv, colorLower, colorUpper)
-	mask = cv2.erode(mask, None, iterations=2)
-	mask = cv2.dilate(mask, None, iterations=2)
+# Define the lower and upper boundaries of the object
+color_lower = np.array([53, 119, 62])  # Adjusted values
+color_upper = np.array([150, 255, 235])  # Adjusted values
 
-	# find contours in the mask and initialize the current
-	# (x, y) center of the object
-	cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-		cv2.CHAIN_APPROX_SIMPLE)
-	cnts = cnts[0] 
-	center = None
+print("[INFO] Starting video stream...")
+try:
+    while True:
+        # Capture a frame from the camera
+        frame = picam2.capture_array()
 
-	# only proceed if at least one contour was found
-	if len(cnts) > 0:
-		# find the largest contour in the mask, then use
-		# it to compute the minimum enclosing circle and
-		# centroid
-		c = max(cnts, key=cv2.contourArea)
-		((x, y), radius) = cv2.minEnclosingCircle(c)
-		M = cv2.moments(c)
-		center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+        # Rotate and correct colors
+        #frame = cv2.rotate(frame, cv2.ROTATE_180)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-		# only proceed if the radius meets a minimum size
-		if radius > 10:
-			# draw the circle and centroid on the frame,
-			# then update the list of tracked points
-			cv2.circle(frame, (int(x), int(y)), int(radius),
-				(0, 255, 255), 2)
-			cv2.circle(frame, center, 5, (0, 0, 255), -1)
-			
-			
-			# if the led is not already on, turn the LED on
-			if not ledOn:
-				GPIO.output(redLed, GPIO.HIGH)
-				ledOn = True
+        # Convert to HSV and create mask
+        hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
+        mask = cv2.inRange(hsv, color_lower, color_upper)
 
-	# if the ball is not detected, turn the LED off
-	elif ledOn:
-		GPIO.output(redLed, GPIO.LOW)
-		ledOn = False
+        # Erode and dilate the mask to clean up noise
+        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
 
-	# show the frame to our screen
-	cv2.imshow("Frame", frame)
-	
-	# if [ESC] key is pressed, stop the loop
-	key = cv2.waitKey(1) & 0xFF
-	if key == 27:
+        # Process contours
+        contours, _ = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(contours) > 0:
+            # Find the largest contour and compute the minimum enclosing circle
+            c = max(contours, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+
+            if radius > 10:
+                # Draw the circle and centroid on the frame
+                cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                if not led_on:
+                    red_led.on()
+                    led_on = True
+        elif led_on:
+            red_led.off()
+            led_on = False
+
+        # Convert mask to BGR for side-by-side display
+        mask_bgr = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+
+        # Concatenate the original frame and mask horizontally
+        side_by_side = np.hstack((frame, mask_bgr))
+
+        # Resize the side-by-side output for a smaller preview
+        side_by_side_small = cv2.resize(side_by_side, (640, 240))  # Adjust resolution here
+
+        # Display the smaller side-by-side output
+        cv2.imshow("Frame and Mask", side_by_side_small)
+
+        # Break the loop with the ESC key
+        if cv2.waitKey(1) & 0xFF == 27:
             break
 
-# do a bit of cleanup
-print("\n [INFO] Exiting Program and cleanup stuff \n")
-GPIO.cleanup()
-cv2.destroyAllWindows()
-vs.stop()
+finally:
+    print("\n[INFO] Exiting program and cleaning up...")
+    red_led.off()
+    cv2.destroyAllWindows()
+    picam2.stop()
