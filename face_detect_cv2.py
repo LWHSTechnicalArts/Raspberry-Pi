@@ -9,6 +9,7 @@ picam2.configure(camera_config)
 picam2.start()
 
 # Load Haar cascade using the full path
+cascade_path = "/home/lick/opencv_haarcascades/haarcascade_frontalface_default.xml"
 cascade_path = "/home/lick/opencv_haarcascades/haarcascade_frontalcatface.xml"
 face_cascade = cv2.CascadeClassifier(cascade_path)
 
