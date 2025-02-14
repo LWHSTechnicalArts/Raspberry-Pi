@@ -1,11 +1,9 @@
-import time
 import requests
-import RPi.GPIO as GPIO
+from gpiozero import LED
+import time
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(18,GPIO.OUT)   # sets pin 18 as output
-GPIO.setup(17,GPIO.OUT)   # sets pin 18 as output
+led_warm = LED(17)
+led_cold = LED(18)
 
 settings = {
     'api_key':'Your API Key',
@@ -21,10 +19,10 @@ while True:
     print(temperature)
 
     if(temperature<=57):
-        GPIO.output(18,GPIO.HIGH)
-        GPIO.output(17,GPIO.LOW)
+        led_cold.on()
+        led_warm.off()
     else:
-        GPIO.output(18,GPIO.LOW)
-        GPIO.output(17,GPIO.HIGH)
+        led_cold.off()
+        led_warm.on()
     
     time.sleep(120) #get new data every 120 seconds
