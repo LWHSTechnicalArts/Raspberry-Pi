@@ -1,6 +1,6 @@
 from requests import get
 
-url = "https://api.nytimes.com/svc/mostpopular/v2/viewed/1.json?api-key=zRolWqHVCFNkXcaOrrvUCz61Eg6Cn0ns"
+url = "https://api.nytimes.com/svc/mostpopular/v2/viewed/1.json?api-key=YOUR_KEY"
 
 # Fetch data with a User-Agent header (to prevent blocks)
 headers = {"User-Agent": "Mozilla/5.0"}
