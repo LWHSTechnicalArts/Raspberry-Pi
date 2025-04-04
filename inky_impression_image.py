@@ -7,7 +7,7 @@ from inky.auto import auto
 # Trick auto() into using hardcoded display settings
 # This simulates passing CLI args to the script
 sys.argv = [
-    "inkytest2.py",          # Fake script name
+    "inky_impression_image.py",          # Fake script name
     "--type", "impressions",  # Try "impressions" or "impression" depending on lib version
     "--colour", "7color"
 ]
