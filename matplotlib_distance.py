@@ -4,13 +4,11 @@ import adafruit_vl53l1x
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Create sensor object, communicating over the board's default I2C bus
-i2c = board.I2C()  # uses board.SCL and board.SDA
-# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
-
+# Create sensor object
+i2c = board.I2C()
 vl53 = adafruit_vl53l1x.VL53L1X(i2c)
 
-# OPTIONAL: can set non-default values
+# Configure sensor
 vl53.distance_mode = 1
 vl53.timing_budget = 100
 
@@ -32,49 +30,51 @@ print("--------------------")
 
 vl53.start_ranging()
 
-# Initialize an empty NumPy array to store distance values
-distance_array = np.array([])
+# Use lists for better performance (convert to numpy later if needed)
+distance_list = []
+time_list = []
 
-# Initialize time array for x-axis of the plot
-time_array = np.array([])
-
-# Create a figure and axis for the plot
+# Create interactive plot
+plt.ion()  # Turn on interactive mode
 fig, ax = plt.subplots()
+line, = ax.plot([], [], 'b-', label='Distance (cm)')
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Distance (cm)')
+ax.set_title('Distance over Time')
+ax.legend()
+ax.grid(True)
 
-# Initialize a counter for time in seconds
-time_counter = 0
+start_time = time.time()
 
-while True:
-    if vl53.data_ready:
-        print("Distance: {} cm".format(vl53.distance))
-        vl53.clear_interrupt()
+try:
+    while True:
+        if vl53.data_ready:
+            distance = vl53.distance
+            current_time = time.time() - start_time
+            
+            print("Distance: {} cm at {:.2f}s".format(distance, current_time))
+            
+            # Append to lists
+            distance_list.append(distance)
+            time_list.append(current_time)
+            
+            # Update plot data
+            line.set_data(time_list, distance_list)
+            
+            # Auto-scale axes
+            ax.relim()
+            ax.autoscale_view()
+            
+            # Redraw
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+            
+            vl53.clear_interrupt()
         
+        time.sleep(0.1)  # Small delay to prevent CPU spinning
 
-    # Append the current temperature to the NumPy array
-    if vl53.distance is not None:
-        distance_array = np.append(distance_array, vl53.distance)
-        print(distance_array)
-        #Append the current time (in seconds) to the time array
-        time_array = np.append(time_array, time_counter)
-
- 
-    # Plot the distance values over time
-    ax.plot(time_array, distance_array, label='Distance (cm)')
-
-    # Add labels and title to the plot
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Distance (cm)')
-    ax.set_title('Distance over Time')
-
-    # Display legend
-    ax.legend()
-
-    # Pause to allow the plot to update
-    plt.pause(2)
-
-    # Increment the time counter
-    time_counter += 2
-
-    # Clear the plot for the next iteration
-    ax.clear()
-
+except KeyboardInterrupt:
+    print("\nStopping measurement...")
+    vl53.stop_ranging()
+    plt.ioff()
+    plt.show()  # Keep the final plot open
