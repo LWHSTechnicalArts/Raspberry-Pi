@@ -17,10 +17,11 @@ speak("Bonjour, comment allez-vous?", lang='fr')
 speak("Hola, cÃ³mo estÃ¡s?", lang='es')
 
 # Chinese (Simplified)
-speak("åï¼ä½ å¥½å?", lang='zh-CN')
+speak("你好你最近怎么样", lang='zh-CN')
 
 # Get all supported languages
 languages = lang.tts_langs()
+
 # Print them nicely
 for code, name in sorted(languages.items()):
     print(f"{code}: {name}")
