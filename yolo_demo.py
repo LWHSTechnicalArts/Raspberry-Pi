@@ -9,7 +9,7 @@ model = YOLO('yolo11n.onnx', task='detect')
 # Setup camera
 print("Starting camera...")
 picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration(main={"size": (640, 480)}))
+picam2.configure(picam2.create_preview_configuration(main={"size": (640, 640)}))
 picam2.start()
 
 print("Camera ready! Press 'q' to quit")
