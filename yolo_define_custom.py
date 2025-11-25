@@ -4,24 +4,24 @@ from ultralytics import YOLO
 
 # Set up the camera with Picam
 picam2 = Picamera2()
-picam2.preview_configuration.main.size = (640,640)
+picam2.preview_configuration.main.size = (320,320)
 picam2.preview_configuration.main.format = "RGB888"
 picam2.preview_configuration.align()
 picam2.configure("preview")
 picam2.start()
 
 # Load our YOLOv8 model
-model = YOLO("yolov8s-world.pt")
+model = YOLO("yolov8s-worldv2.pt")
 
 # Define custom classes
-model.set_classes(["slim red screwdriver"])
+model.set_classes(["black shirt"])
 
 while True:
     # Capture a frame from the camera
     frame = picam2.capture_array()
     
     # Run YOLO model on the captured frame and store the results
-    results = model(frame, imgsz = 640)
+    results = model(frame, imgsz = 320)
     
     # Output the visual detection data, we will draw this on our camera preview window
     annotated_frame = results[0].plot()
