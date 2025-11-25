@@ -1,15 +1,18 @@
-from ultralytics import YOLO
+rom ultralytics import YOLO
 from picamera2 import Picamera2
 import cv2
 
-model = YOLO('yolov8n.pt')
+# Load ONNX model
+print("Loading ONNX model...")
+model = YOLO('yolo11n.onnx', task='detect')
 
-# Use picamera2 for Pi Camera
+# Setup camera
+print("Starting camera...")
 picam2 = Picamera2()
 picam2.configure(picam2.create_preview_configuration(main={"size": (640, 480)}))
 picam2.start()
 
-print("Camera started! Press 'q' to quit")
+print("Camera ready! Press 'q' to quit")
 
 while True:
     # Capture frame
@@ -18,11 +21,12 @@ while True:
     # Convert RGB to BGR for OpenCV
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     
-    # Run detection
+    # Run ONNX inference (faster!)
     results = model(frame, verbose=False)
     annotated_frame = results[0].plot()
     
-    cv2.imshow('YOLOv8', annotated_frame)
+    # Display
+    cv2.imshow('YOLOv11 ONNX', annotated_frame)
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
