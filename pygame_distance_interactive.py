@@ -25,7 +25,7 @@ vl53.start_ranging()
 
 # Load and scale the image (fixed size, no scaling during runtime)
 try:
-    ball_image = pygame.image.load("squirrel.png").convert_alpha()
+    ball_image = pygame.image.load("/home/lick/Documents/Raspberry-Pi/squirrel.png").convert_alpha()
     ball_image = pygame.transform.scale(ball_image, (300, 120)) 
 except pygame.error as e:
     print(f"Error loading image: {e}")
