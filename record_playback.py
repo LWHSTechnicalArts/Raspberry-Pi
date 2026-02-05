@@ -54,7 +54,7 @@ wf.close()
 print(f"Audio saved to {OUTPUT_FILENAME}")
 
 pygame.mixer.init()
-sound = pygame.mixer.Sound('/home/lick/Documents/output.wav')
+sound = pygame.mixer.Sound('/home/lick/Documents/Raspberry-Pi/output.wav')
 sound.play()
 time.sleep(sound.get_length())
 pygame.mixer.quit()
